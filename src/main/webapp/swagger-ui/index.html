@@ -78,24 +78,18 @@
                     window.swaggerUi.headerView.trigger('update-swagger-ui', {
                         url: $('#select_baseUrl').val()
                     });
+                    // TODO YEH after update to swagger 3 this will be fixed https://github.com/jhipster/generator-jhipster/issues/7966
+                    // for now let's just use token provided and update at url change
                     addApiKeyAuthorization();
                 });
 
                 function addApiKeyAuthorization() {
-                    var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("X-XSRF-TOKEN", getCSRF(), "header");
-                    window.swaggerUi.api.clientAuthorizations.add("key", apiKeyAuth);
+                    // refreshToken() updates/sets the authToken throw typescript
+                    refreshToken();
+                    var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("Authorization", "Bearer " + authToken, "header");
+                    window.swaggerUi.api.clientAuthorizations.add("bearer", apiKeyAuth);
                 }
 
-                function getCSRF() {
-                    var name = "XSRF-TOKEN=";
-                    var ca = document.cookie.split(';');
-                    for(var i=0; i<ca.length; i++) {
-                        var c = ca[i];
-                        while (c.charAt(0) === ' ') c = c.substring(1);
-                        if (c.indexOf(name) !== -1) return c.substring(name.length,c.length);
-                    }
-                    return "";
-                }
 
                 function log() {
                     if ('console' in window) {
@@ -105,7 +99,6 @@
 
                 function oAuthIsDefined(security) {
                     return security.clientId
-                    && security.clientSecret
                     && security.appName
                     && security.realm;
                 }

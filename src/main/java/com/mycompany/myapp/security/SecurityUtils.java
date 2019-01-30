@@ -61,4 +61,9 @@ public final class SecurityUtils {
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(authority)))
             .orElse(false);
     }
+
+    public static Optional<String> getCurrentUserJWT() {
+        return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+            .map(authentication -> authentication.getCredentials().toString());
+    }
 }

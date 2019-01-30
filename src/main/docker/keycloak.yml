@@ -1,8 +1,8 @@
 version: '2'
 services:
   keycloak:
-    image: jboss/keycloak:4.6.0.Final
-    command: ["-b", "0.0.0.0", "-Dkeycloak.migration.action=import", "-Dkeycloak.migration.provider=dir", "-Dkeycloak.migration.dir=/opt/jboss/keycloak/realm-config", "-Dkeycloak.migration.strategy=OVERWRITE_EXISTING", "-Djboss.socket.binding.port-offset=1000"]
+    image: jboss/keycloak:4.8.3.Final
+    command: ["-b", "0.0.0.0", "-Dkeycloak.migration.action=import", "-Dkeycloak.migration.provider=dir", "-Dkeycloak.migration.dir=/opt/jboss/keycloak/realm-config", "-Dkeycloak.migration.strategy=IGNORE_EXISTING", "-Djboss.socket.binding.port-offset=1000"]
     volumes:
       - ./realm-config:/opt/jboss/keycloak/realm-config
     environment:

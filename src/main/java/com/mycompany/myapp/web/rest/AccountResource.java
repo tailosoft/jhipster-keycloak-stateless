@@ -8,12 +8,15 @@ import com.codahale.metrics.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing the current user's account.
@@ -55,13 +58,19 @@ public class AccountResource {
     @SuppressWarnings("unchecked")
     public UserDTO getAccount(Principal principal) {
         if (principal != null) {
-            if (principal instanceof OAuth2Authentication) {
-                return userService.getUserFromAuthentication((OAuth2Authentication) principal);
+            if (principal instanceof JwtAuthenticationToken) {
+                JwtAuthenticationToken authentication = ((JwtAuthenticationToken) principal);
+                UserDTO userDTO = new UserDTO();
+                userDTO.setActivated(true);
+                userDTO.setAuthorities(authentication.getAuthorities().stream().map(ga -> ga.getAuthority()).collect(Collectors.toSet()));
+                userDTO.setFirstName((String) authentication.getTokenAttributes().get("given_name"));
+                userDTO.setLastName((String) authentication.getTokenAttributes().get("family_name"));
+                userDTO.setEmail((String) authentication.getTokenAttributes().get("email"));
+                userDTO.setLogin((String) authentication.getTokenAttributes().get("preferred_username"));
+                return userDTO;
             } else {
                 // Allow Spring Security Test to be used to mock users in the database
-                return userService.getUserWithAuthorities()
-                    .map(UserDTO::new)
-                    .orElseThrow(() -> new InternalServerErrorException("User could not be found"));
+                throw new InternalServerErrorException("User could not be found");
             }
         } else {
             throw new InternalServerErrorException("User could not be found");
