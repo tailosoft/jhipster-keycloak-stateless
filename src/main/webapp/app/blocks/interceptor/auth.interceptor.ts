@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { from, Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { AuthServerProvider } from 'app/core';
-import { catchError, switchMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -16,7 +16,6 @@ export class AuthInterceptor implements HttpInterceptor {
         }
 
         return this.authServer.getToken().pipe(
-            catchError(_ => of(undefined)),
             switchMap(token => {
                 if (!!token) {
                     request = request.clone({
